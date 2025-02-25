@@ -31,29 +31,43 @@ void ButtonEvents::attachOnButtonHoldRelease(void (*func)(void))
 
 void ButtonEvents::buttonPressed()
 {
-    buttonDetectHoldTimer.begin(400);
+    if (_debounceTimer.available() && _previousClickState != 1)
+    {
+        _debounceTimer.restart();
+
+        buttonDetectHoldTimer.begin(400);
+
+        _previousClickState = 1;
+    }
 }
 
 void ButtonEvents::buttonReleased()
 {
-    buttonDetectHoldTimer.begin(0);  // stop
-    buttonHoldTickInterval.begin(0); // stop
-
-    if (isButtonHeld)
+    if (_debounceTimer.available() && _previousClickState != 0)
     {
-        isButtonHeld = false;
+        _debounceTimer.restart();
 
-        if (_onButtonHoldRelease != nullptr)
+        buttonDetectHoldTimer.begin(0);  // stop
+        buttonHoldTickInterval.begin(0); // stop
+
+        if (isButtonHeld)
         {
-            _onButtonHoldRelease();
+            isButtonHeld = false;
+
+            if (_onButtonHoldRelease != nullptr)
+            {
+                _onButtonHoldRelease();
+            }
         }
-    }
-    else
-    {
-        if (_onButtonClick != nullptr)
+        else
         {
-            _onButtonClick();
+            if (_onButtonClick != nullptr)
+            {
+                _onButtonClick();
+            }
         }
+
+        _previousClickState = 0;
     }
 }
 
@@ -86,4 +100,9 @@ void ButtonEvents::update()
 
         buttonHoldTickInterval.restart();
     }
+}
+
+void ButtonEvents::begin()
+{
+    _debounceTimer.begin(20);
 }

@@ -13,8 +13,10 @@ private:
     void (*_onButtonHoldRelease)(void);
     Timer buttonDetectHoldTimer;
     Timer buttonHoldTickInterval;
+    Timer _debounceTimer;
 
     bool isButtonHeld = false;
+    byte _previousClickState = 0;
 
 public:
     ButtonEvents();
@@ -26,6 +28,7 @@ public:
     void buttonPressed();
     void buttonReleased();
     void update();
+    void begin();
 };
 
 #endif
